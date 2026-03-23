@@ -265,7 +265,18 @@ const useCampaignStore = create((set, get) => {
         const updated = state.campaigns.map(c => c.id === campaignId ? { ...c, ...updates } : c)
         saveLocal(updated)
         const campaign = updated.find(c => c.id === campaignId)
-        if (campaign) saveCampaignToSupabase(campaign)
+        if (campaign) {
+          saveCampaignToSupabase(campaign)
+          // Sync launch date to matching CRM lead
+          if ('launchDate' in updates) {
+            try {
+              const { useCrmStore } = require('./crm')
+              const leads = useCrmStore.getState().leads
+              const match = leads.find(l => l.name.toLowerCase() === campaign.companyName.toLowerCase())
+              if (match) useCrmStore.getState().updateLead(match.id, { launchDate: updates.launchDate })
+            } catch (e) {}
+          }
+        }
         return { campaigns: updated }
       })
     },
