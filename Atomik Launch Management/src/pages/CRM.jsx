@@ -141,7 +141,7 @@ function LeadCard({ lead, onEdit, onDragStart, onDragEnd, isDragging }) {
         <p className="text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>{lead.source}</p>
       )}
       {lead.launchDate && (
-        <p className="text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>{lead.launchDate}</p>
+        <p className="text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>{new Date(lead.launchDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
       )}
 
       <div className="flex items-center gap-1.5 flex-wrap">
