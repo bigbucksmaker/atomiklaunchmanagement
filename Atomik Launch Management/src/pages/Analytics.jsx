@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { BarChart3, TrendingUp, DollarSign, Users, Target, ArrowUpRight } from 'lucide-react'
 import { useCrmStore, CRM_STATUSES } from '../store/crm'
+import PasswordGate from '../components/PasswordGate'
 
 const STATUS_COLORS = {
   '1. Lead': '#6B7280',
@@ -33,6 +34,10 @@ function StatCard({ icon: Icon, label, value, sub, color }) {
 }
 
 export default function Analytics() {
+  return <PasswordGate><AnalyticsDashboard /></PasswordGate>
+}
+
+function AnalyticsDashboard() {
   const { leads } = useCrmStore()
 
   const stats = useMemo(() => {

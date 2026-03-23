@@ -1,13 +1,15 @@
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Calculator, Search, Plus, X, DollarSign, Users } from 'lucide-react'
+import { Calculator, Search, Plus, X, DollarSign, Users, UserPlus } from 'lucide-react'
 import { useInfluencerDb } from '../store/influencerDb'
-import { formatFollowers, formatPrice } from '../utils/csvParser'
+import { formatFollowers, formatPrice, extractUsername } from '../utils/csvParser'
 
 export default function CostCalculator() {
   const { influencers } = useInfluencerDb()
   const [selected, setSelected] = useState([])
   const [search, setSearch] = useState('')
+  const [showBulk, setShowBulk] = useState(false)
+  const [bulkInput, setBulkInput] = useState('')
 
   const filtered = useMemo(() => {
     if (!search) return []
@@ -27,6 +29,30 @@ export default function CostCalculator() {
     setSelected(selected.filter(s => s.username !== username))
   }
 
+  const handleBulkAdd = () => {
+    if (!bulkInput.trim()) return
+    const usernames = bulkInput.split(/[\n,]+/).map(s => {
+      const trimmed = s.trim()
+      if (!trimmed) return null
+      if (trimmed.includes('x.com/') || trimmed.includes('twitter.com/')) {
+        return extractUsername(trimmed)
+      }
+      return trimmed.replace(/^@/, '')
+    }).filter(Boolean)
+
+    const existing = new Set(selected.map(s => s.username.toLowerCase()))
+    const newOnes = usernames
+      .filter(u => !existing.has(u.toLowerCase()))
+      .map(u => {
+        const match = influencers.find(i => i.username.toLowerCase() === u.toLowerCase())
+        return match || { username: u, firstName: 'Unknown', qtCommentPrice: 0, commentPrice: 0, followers: 0 }
+      })
+
+    setSelected([...selected, ...newOnes])
+    setBulkInput('')
+    setShowBulk(false)
+  }
+
   const totalQtCom = selected.reduce((sum, i) => sum + (i.qtCommentPrice || 0), 0)
   const totalComment = selected.reduce((sum, i) => sum + (i.commentPrice || 0), 0)
   const totalFollowers = selected.reduce((sum, i) => sum + (i.followers || 0), 0)
@@ -38,8 +64,9 @@ export default function CostCalculator() {
         Campaign Cost Calculator
       </h1>
 
-      {/* Search */}
-      <div className="relative max-w-md mb-6">
+      {/* Search + Bulk add */}
+      <div className="flex items-start gap-3 mb-6">
+      <div className="relative flex-1 max-w-md">
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
         <input
           type="text"
@@ -73,6 +100,37 @@ export default function CostCalculator() {
           </div>
         )}
       </div>
+
+      <button
+        onClick={() => setShowBulk(!showBulk)}
+        className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider border-none cursor-pointer"
+        style={{ background: 'var(--bg-secondary)', color: 'var(--gold-base)', border: '1px solid var(--border-color)' }}
+      >
+        <UserPlus size={14} /> Paste Usernames
+      </button>
+      </div>
+
+      {showBulk && (
+        <div className="mb-6 rounded-xl p-4" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+          <label className="block text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
+            Paste usernames or X profile URLs (one per line or comma-separated)
+          </label>
+          <textarea
+            value={bulkInput}
+            onChange={e => setBulkInput(e.target.value)}
+            placeholder="@username1, https://x.com/username2&#10;username3"
+            rows={4}
+            className="w-full px-3 py-2 rounded-lg border text-xs resize-none mb-3"
+            style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', outline: 'none' }}
+          />
+          <div className="flex items-center gap-2">
+            <button onClick={handleBulkAdd} className="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider border-none cursor-pointer"
+              style={{ background: 'var(--gold-base)', color: 'var(--bg-primary)' }}>Match & Add</button>
+            <button onClick={() => { setShowBulk(false); setBulkInput('') }} className="px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider border-none cursor-pointer"
+              style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}>Cancel</button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Selected influencers */}

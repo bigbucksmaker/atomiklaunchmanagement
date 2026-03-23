@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Activity, Trash2, Clock } from 'lucide-react'
 import { useActivityLog } from '../store/activityLog'
+import PasswordGate from '../components/PasswordGate'
 
 function timeAgo(timestamp) {
   const diff = Date.now() - new Date(timestamp).getTime()
@@ -14,6 +15,10 @@ function timeAgo(timestamp) {
 }
 
 export default function ActivityLogPage() {
+  return <PasswordGate><ActivityLogContent /></PasswordGate>
+}
+
+function ActivityLogContent() {
   const { entries, clearLog } = useActivityLog()
   const sorted = [...entries].reverse()
 
