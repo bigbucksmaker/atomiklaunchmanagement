@@ -60,7 +60,7 @@ export default function TweetCard({ name, handle, avatar, verified, text, date, 
 
       {/* Tweet text */}
       <p
-        className="text-[15px] leading-[1.7] mb-5 whitespace-pre-wrap"
+        className="text-[15px] leading-[1.7] mb-5 whitespace-pre-wrap text-left"
         style={{ color: 'var(--text-primary)' }}
       >
         {text}

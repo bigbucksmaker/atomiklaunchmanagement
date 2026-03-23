@@ -1,6 +1,15 @@
 import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Eye, MessageCircle, Heart } from 'lucide-react'
 import TweetCard from '../components/TwitterEmbed'
+
+function RetweetIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 014-4h14" />
+      <path d="M7 23l-4-4 4-4" /><path d="M21 13v2a4 4 0 01-4 4H3" />
+    </svg>
+  )
+}
 
 const CALENDLY_URL = 'https://calendly.com/d/5cr-qm2-f2h/atomik-growth-intro-call'
 const PLAYBOOK_URL = 'https://www.atomikgrowth.com/blog/the-science-behind-every-viral-launch-video-on-x'
@@ -65,17 +74,48 @@ export default function Homepage() {
             viewport={{ once: true }}
             transition={{ delay: 0.2, duration: 0.6 }}
           >
-            <TweetCard
-              name="Subah Wadhwani"
-              handle="subahwadhwani"
-              avatar="https://pbs.twimg.com/profile_images/1886575556777357312/gFx7V3Ul_normal.jpg"
-              verified
-              tweetUrl="https://x.com/subahwadhwani/status/2027526010300993796"
-              text=""
-              videoThumb="https://pbs.twimg.com/amplify_video_thumb/2027524942582358016/img/placeholder.jpg"
-              date='The Science Behind Every Viral Launch Video on X'
-              stats={{ views: '92K', replies: '19', retweets: '36', likes: '364' }}
-            />
+            <a
+              href="https://x.com/subahwadhwani/status/2027526010300993796"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-2xl p-6 no-underline transition-all duration-300"
+              style={{ border: '1px solid var(--border-color)', background: 'var(--gold-glow)' }}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2.5">
+                  <img alt="Subah Wadhwani" src="https://pimkkrsopwrnqbjbbvms.supabase.co/storage/v1/object/public/blog-images/avatars/subah_headshot5.png" className="w-10 h-10 rounded-full" />
+                  <div>
+                    <div className="flex items-center gap-1 text-[14px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+                      Subah Wadhwani
+                      <svg width="14" height="14" viewBox="0 0 22 22" fill="var(--gold-base)"><path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.14.272.587.7 1.086 1.24 1.44s1.167.551 1.813.568c.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.89.14.63-.134 1.212-.438 1.68-.884.468-.47.77-1.055.9-1.69.134-.636.085-1.294-.137-1.9.586-.273 1.084-.706 1.438-1.246.355-.54.552-1.17.57-1.817z" /><path d="M9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" fill="var(--bg-primary)" /></svg>
+                    </div>
+                    <div className="text-[12px]" style={{ color: 'var(--text-muted)' }}>@subahwadhwani</div>
+                  </div>
+                </div>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--text-muted)"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+              </div>
+              {/* Article preview */}
+              <div className="rounded-xl overflow-hidden mb-4" style={{ border: '1px solid var(--border-color)' }}>
+                <div className="relative">
+                  <img alt="The Science Behind Every Viral Launch Video on X" src="https://pbs.twimg.com/media/HCM3C4ra0AAG_hB.jpg" className="w-full block object-cover" style={{ aspectRatio: '2.5/1' }} />
+                  <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold text-white" style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+                    Article
+                  </div>
+                </div>
+                <div className="px-4 py-3">
+                  <h3 className="text-[14px] font-bold leading-tight" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-body)' }}>The Science Behind Every Viral Launch Video on X</h3>
+                </div>
+              </div>
+              {/* Stats */}
+              <div className="flex gap-4 flex-wrap text-[12px]" style={{ color: 'var(--text-muted)' }}>
+                <span className="flex items-center gap-1.5"><MessageCircle size={14} strokeWidth={1.5} /><span className="font-medium">19</span></span>
+                <span className="flex items-center gap-1.5"><RetweetIcon size={14} /><span className="font-medium">36</span></span>
+                <span className="flex items-center gap-1.5"><Heart size={14} strokeWidth={1.5} /><span className="font-medium">364</span></span>
+                <span className="flex items-center gap-1.5"><Eye size={14} strokeWidth={1.5} /><span className="font-medium">92K</span></span>
+              </div>
+            </a>
           </motion.div>
         </div>
       </section>
@@ -139,11 +179,11 @@ export default function Homepage() {
           <TweetCard
             name="Dhawal Jain"
             handle="thatssodhawal"
-            avatar="https://pbs.twimg.com/profile_images/1880198940543307776/placeholder_normal.jpg"
+            avatar="https://pbs.twimg.com/profile_images/1991162453175193600/nv43BxvY_normal.jpg"
             verified
             tweetUrl="https://x.com/thatssodhawal/status/2034276417530151200"
             text={"We've raised $2.1M to fix your focus.\nOur wearable headset @mavehealth improves attention & stress regulation in just 20 minutes a day for users at @Google, @ufc, @ycombinator.\nBacked by @BlumeVentures, alongside existing and new investors."}
-            videoThumb="https://pbs.twimg.com/amplify_video_thumb/2034274000734650368/img/placeholder.jpg"
+            videoThumb=""
             date={'7:31 AM · Mar 18, 2026 · <span style="font-weight:600;color:var(--text-primary)">2.4M</span> Views'}
             stats={{ views: '2.4M', replies: '404', retweets: '1K', likes: '3.1K', bookmarks: '1.7K' }}
           />
