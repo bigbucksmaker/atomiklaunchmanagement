@@ -103,16 +103,19 @@ function TierBadge({ tier }) {
   )
 }
 
-function LeadCard({ lead, onEdit }) {
+function LeadCard({ lead, onEdit, onDragStart, onDragEnd, isDragging }) {
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
+      animate={{ opacity: isDragging ? 0.4 : 1, y: 0 }}
       whileHover={{ y: -2 }}
       onClick={() => onEdit(lead)}
-      className="rounded-xl p-3.5 cursor-pointer transition-all duration-200"
-      style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
+      draggable
+      onDragStart={(e) => onDragStart?.(e, lead.id)}
+      onDragEnd={onDragEnd}
+      className="rounded-xl p-3.5 cursor-grab active:cursor-grabbing transition-all duration-200"
+      style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', opacity: isDragging ? 0.4 : 1 }}
     >
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-semibold truncate" style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-primary)' }}>
@@ -315,6 +318,37 @@ function CRMBoard() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingLead, setEditingLead] = useState(null)
   const [addToStatus, setAddToStatus] = useState(null)
+  const [draggedId, setDraggedId] = useState(null)
+  const [dragOverStatus, setDragOverStatus] = useState(null)
+
+  const handleDragStart = (e, leadId) => {
+    setDraggedId(leadId)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e, status) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDragOverStatus(status)
+  }
+
+  const handleDragLeave = () => {
+    setDragOverStatus(null)
+  }
+
+  const handleDrop = (e, status) => {
+    e.preventDefault()
+    if (draggedId) {
+      updateLead(draggedId, { status })
+    }
+    setDraggedId(null)
+    setDragOverStatus(null)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedId(null)
+    setDragOverStatus(null)
+  }
 
   const columns = CRM_STATUSES.map(status => ({
     status,
@@ -377,6 +411,9 @@ function CRMBoard() {
             <div
               key={col.status}
               className="flex-1 min-w-[240px] max-w-[280px] flex flex-col"
+              onDragOver={(e) => handleDragOver(e, col.status)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, col.status)}
             >
               {/* Column header */}
               <div
@@ -400,9 +437,23 @@ function CRMBoard() {
               </div>
 
               {/* Cards */}
-              <div className="flex flex-col gap-2 flex-1">
+              <div
+                className="flex flex-col gap-2 flex-1 rounded-xl p-1 transition-all duration-200"
+                style={{
+                  background: dragOverStatus === col.status ? `${col.colors.border}15` : 'transparent',
+                  border: dragOverStatus === col.status ? `2px dashed ${col.colors.border}40` : '2px dashed transparent',
+                  minHeight: 60,
+                }}
+              >
                 {col.leads.map(lead => (
-                  <LeadCard key={lead.id} lead={lead} onEdit={handleEdit} />
+                  <LeadCard
+                    key={lead.id}
+                    lead={lead}
+                    onEdit={handleEdit}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    isDragging={draggedId === lead.id}
+                  />
                 ))}
 
                 {/* Add new button */}
