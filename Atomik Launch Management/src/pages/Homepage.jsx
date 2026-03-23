@@ -17,8 +17,7 @@ const BASE = 'https://www.atomikgrowth.com'
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-50px' },
+  animate: { opacity: 1, y: 0 },
   transition: { duration: 0.6, ease: 'easeOut' },
 }
 
@@ -70,8 +69,8 @@ export default function Homepage() {
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            animate={{ opacity: 1, y: 0 }}
+
             transition={{ delay: 0.2, duration: 0.6 }}
           >
             <a
@@ -136,7 +135,7 @@ export default function Homepage() {
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          animate={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.15, duration: 0.6 }}
           className="max-w-xl mx-auto"
@@ -171,7 +170,7 @@ export default function Homepage() {
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          animate={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.15, duration: 0.6 }}
           className="max-w-xl mx-auto"
@@ -204,7 +203,7 @@ export default function Homepage() {
         {/* First row — full width hero video */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          animate={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           className="rounded-2xl overflow-hidden aspect-video max-w-4xl mx-auto mb-4"
@@ -223,8 +222,8 @@ export default function Homepage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            animate={{ opacity: 1, y: 0 }}
+
             transition={{ delay: 0.1, duration: 0.5 }}
             className="rounded-2xl overflow-hidden aspect-video"
             style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
@@ -239,8 +238,8 @@ export default function Homepage() {
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            animate={{ opacity: 1, y: 0 }}
+
             transition={{ delay: 0.2, duration: 0.5 }}
             className="rounded-2xl overflow-hidden aspect-video"
             style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
@@ -278,8 +277,8 @@ export default function Homepage() {
             <motion.div
               key={phase.num}
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              animate={{ opacity: 1, y: 0 }}
+  
               transition={{ delay: i * 0.1, duration: 0.5 }}
             >
               <span
@@ -307,7 +306,7 @@ export default function Homepage() {
         {/* Phase 05 centered */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          animate={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="text-center max-w-lg mx-auto"
         >
