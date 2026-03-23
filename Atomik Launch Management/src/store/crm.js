@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
+import { supabase } from '../lib/supabase'
 
 const CRM_STATUSES = [
   '1. Lead',
@@ -76,51 +77,97 @@ const SEED_LEADS = [
   createLead({ name: 'Bilt Rewards', budgetInputted: 'N/A but huge company', companyOneLiner: 'Earn points on rent and mortgage.', funding: '$250M at $10B+ Valuation', source: 'We emailed them', status: '2. Call booked', website: 'https://www.bilt.com/' }),
 ]
 
-function loadCrm() {
+// Supabase helpers
+async function loadCrmFromSupabase() {
   try {
-    const saved = localStorage.getItem('atomik-crm')
-    if (saved) return JSON.parse(saved)
-  } catch (e) {
-    console.error('Failed to load CRM:', e)
-  }
-  return { leads: SEED_LEADS }
+    const { data, error } = await supabase.from('crm_leads').select('id, data')
+    if (error) throw error
+    if (data && data.length > 0) return data.map(r => r.data)
+  } catch (e) { console.error('Supabase CRM load failed:', e) }
+  return null
 }
 
-function saveCrm(state) {
+async function saveLeadToSupabase(lead) {
   try {
-    localStorage.setItem('atomik-crm', JSON.stringify({ leads: state.leads }))
-  } catch (e) {
-    console.error('Failed to save CRM:', e)
-  }
+    await supabase.from('crm_leads').upsert({ id: lead.id, data: lead, updated_at: new Date().toISOString() })
+  } catch (e) { console.error('Supabase CRM save failed:', e) }
+}
+
+async function deleteLeadFromSupabase(id) {
+  try {
+    await supabase.from('crm_leads').delete().eq('id', id)
+  } catch (e) { console.error('Supabase CRM delete failed:', e) }
+}
+
+async function syncAllLeadsToSupabase(leads) {
+  try {
+    const rows = leads.map(l => ({ id: l.id, data: l, updated_at: new Date().toISOString() }))
+    await supabase.from('crm_leads').upsert(rows)
+  } catch (e) { console.error('Supabase CRM sync failed:', e) }
+}
+
+function loadLocal() {
+  try {
+    const saved = localStorage.getItem('atomik-crm')
+    if (saved) return JSON.parse(saved).leads
+  } catch (e) {}
+  return null
+}
+
+function saveLocal(leads) {
+  try { localStorage.setItem('atomik-crm', JSON.stringify({ leads })) } catch (e) {}
 }
 
 const useCrmStore = create((set, get) => {
-  const initial = loadCrm()
+  const localLeads = loadLocal() || SEED_LEADS
+
+  loadCrmFromSupabase().then(remote => {
+    if (remote && remote.length > 0) {
+      set({ leads: remote })
+      saveLocal(remote)
+    } else {
+      syncAllLeadsToSupabase(localLeads)
+    }
+  })
+
   return {
-    leads: initial.leads,
+    leads: localLeads,
 
     addLead: (data) => {
+      const lead = createLead(data)
       set(state => {
-        const newState = { leads: [...state.leads, createLead(data)] }
-        saveCrm(newState)
-        return newState
+        const updated = [...state.leads, lead]
+        saveLocal(updated)
+        saveLeadToSupabase(lead)
+        return { leads: updated }
       })
     },
 
     updateLead: (id, updates) => {
       set(state => {
-        const newState = { leads: state.leads.map(l => l.id === id ? { ...l, ...updates } : l) }
-        saveCrm(newState)
-        return newState
+        const updated = state.leads.map(l => l.id === id ? { ...l, ...updates } : l)
+        saveLocal(updated)
+        const lead = updated.find(l => l.id === id)
+        if (lead) saveLeadToSupabase(lead)
+        return { leads: updated }
       })
     },
 
     deleteLead: (id) => {
       set(state => {
-        const newState = { leads: state.leads.filter(l => l.id !== id) }
-        saveCrm(newState)
-        return newState
+        const updated = state.leads.filter(l => l.id !== id)
+        saveLocal(updated)
+        deleteLeadFromSupabase(id)
+        return { leads: updated }
       })
+    },
+
+    refreshFromSupabase: async () => {
+      const remote = await loadCrmFromSupabase()
+      if (remote && remote.length > 0) {
+        set({ leads: remote })
+        saveLocal(remote)
+      }
     },
   }
 })

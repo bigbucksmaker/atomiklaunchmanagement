@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
+import { supabase } from '../lib/supabase'
 
 const TEAM_MEMBERS = ['Hannaan', 'Subah', 'Vihaan', 'Karan', 'Khushal', 'Khushi', 'Arthur']
 
@@ -84,70 +85,58 @@ const SEED_CAMPAIGNS = [
   createCampaign('Composio', 1, null, 'Composio 2.0, contact: Quinn Donohue'),
 ]
 
-// Migrate old localStorage data to new schema
-function migrateState(state) {
-  return {
-    ...state,
-    campaigns: state.campaigns.map(c => ({
-      ...c,
-      campaignInfluencers: c.campaignInfluencers || [],
-      videos: c.videos.map(v => ({
-        ...v,
-        stages: migrateVideoStages(v.stages),
-      })),
-      influencer: migrateInfluencerStages(c.influencer),
-    })),
-  }
-}
-
-function migrateVideoStages(stages) {
-  const migrated = { ...stages }
-  for (const key of Object.keys(migrated)) {
-    const s = migrated[key]
-    if (s && typeof s === 'object' && !Array.isArray(s)) {
-      if ('assignee' in s && !('assignees' in s)) {
-        migrated[key] = { ...s, assignees: s.assignee ? [s.assignee] : [] }
-        delete migrated[key].assignee
-      }
-      if ('frameLink' in s && !('frameLinks' in s)) {
-        migrated[key] = { ...migrated[key], frameLinks: s.frameLink ? [{ url: s.frameLink, label: '' }] : [] }
-        delete migrated[key].frameLink
-      }
+// Supabase sync helpers
+async function loadFromSupabase() {
+  try {
+    const { data, error } = await supabase.from('campaigns').select('id, data')
+    if (error) throw error
+    if (data && data.length > 0) {
+      return data.map(row => row.data)
     }
+  } catch (e) {
+    console.error('Supabase load failed, using local:', e)
   }
-  return migrated
+  return null
 }
 
-function migrateInfluencerStages(inf) {
-  const migrated = { ...inf }
-  for (const key of Object.keys(migrated)) {
-    const s = migrated[key]
-    if (s && typeof s === 'object' && !Array.isArray(s)) {
-      if ('assignee' in s && !('assignees' in s)) {
-        migrated[key] = { ...s, assignees: s.assignee ? [s.assignee] : [] }
-        delete migrated[key].assignee
-      }
-    }
+async function saveCampaignToSupabase(campaign) {
+  try {
+    await supabase.from('campaigns').upsert({ id: campaign.id, data: campaign, updated_at: new Date().toISOString() })
+  } catch (e) {
+    console.error('Supabase save failed:', e)
   }
-  return migrated
 }
 
-function loadState() {
+async function deleteCampaignFromSupabase(id) {
+  try {
+    await supabase.from('campaigns').delete().eq('id', id)
+  } catch (e) {
+    console.error('Supabase delete failed:', e)
+  }
+}
+
+async function syncAllToSupabase(campaigns) {
+  try {
+    const rows = campaigns.map(c => ({ id: c.id, data: c, updated_at: new Date().toISOString() }))
+    await supabase.from('campaigns').upsert(rows)
+  } catch (e) {
+    console.error('Supabase sync failed:', e)
+  }
+}
+
+// Local storage fallback
+function loadLocal() {
   try {
     const saved = localStorage.getItem('atomik-campaigns')
-    if (saved) return migrateState(JSON.parse(saved))
-  } catch (e) {
-    console.error('Failed to load state:', e)
-  }
-  return { campaigns: SEED_CAMPAIGNS }
+    if (saved) return JSON.parse(saved).campaigns
+  } catch (e) {}
+  return null
 }
 
-function saveState(state) {
+function saveLocal(campaigns) {
   try {
-    localStorage.setItem('atomik-campaigns', JSON.stringify({ campaigns: state.campaigns }))
-  } catch (e) {
-    console.error('Failed to save state:', e)
-  }
+    localStorage.setItem('atomik-campaigns', JSON.stringify({ campaigns }))
+  } catch (e) {}
 }
 
 // Progress calculation helpers
@@ -166,8 +155,7 @@ function calculateVideoProgress(video) {
     stages.scriptFinalized, stages.aiAnimation, stages.motionDesign,
     stages.sentToClient, stages.videoApproved,
   ]
-  const done = items.filter(isStageComplete).length
-  return { done, total: items.length }
+  return { done: items.filter(isStageComplete).length, total: items.length }
 }
 
 function calculateInfluencerProgress(inf) {
@@ -176,13 +164,11 @@ function calculateInfluencerProgress(inf) {
     inf.copiesWritten, inf.copiesSentToClient, inf.copiesApproved,
     inf.warmupTextsSent, inf.quoteTweetsSent, inf.launchDayLinkSent,
   ]
-  const done = items.filter(isStageComplete).length
-  return { done, total: items.length }
+  return { done: items.filter(isStageComplete).length, total: items.length }
 }
 
 function calculateCampaignProgress(campaign) {
-  let totalDone = 0
-  let totalItems = 0
+  let totalDone = 0, totalItems = 0
   campaign.videos.forEach(v => {
     const p = calculateVideoProgress(v)
     totalDone += p.done
@@ -209,20 +195,14 @@ function calculateTrackProgress(campaign, track) {
 }
 
 const HIGH_LEVEL_STAGES = [
-  'Ideation & Moodboard',
-  'Scripting',
-  'AI Animation (Karan)',
-  'Motion Design (Khushal)',
-  'Client Review',
-  'Influencer Outreach',
-  'Ready to Launch',
-  'Launched',
+  'Ideation & Moodboard', 'Scripting', 'AI Animation (Karan)',
+  'Motion Design (Khushal)', 'Client Review', 'Influencer Outreach',
+  'Ready to Launch', 'Launched',
 ]
 
 function getCampaignStage(campaign) {
   const progress = calculateCampaignProgress(campaign)
   if (progress === 100) return 'Launched'
-
   const allVideos = campaign.videos
   const allVideoApproved = allVideos.every(v => v.stages.videoApproved)
   const allSentToClient = allVideos.every(v => v.stages.sentToClient)
@@ -232,11 +212,8 @@ function getCampaignStage(campaign) {
   const anyScriptInProgress = allVideos.some(v => v.stages.scriptOptions.status !== 'not_started')
   const anyAiInProgress = allVideos.some(v => v.stages.aiAnimation.status !== 'not_started')
   const anyMotionInProgress = allVideos.some(v => v.stages.motionDesign.status !== 'not_started')
-
   const inf = campaign.influencer
-  const infOutreachStarted = inf.warmupTextsSent.status !== 'not_started' ||
-    inf.quoteTweetsSent.status !== 'not_started'
-
+  const infOutreachStarted = inf.warmupTextsSent.status !== 'not_started' || inf.quoteTweetsSent.status !== 'not_started'
   if (allVideoApproved && inf.copiesApproved) return 'Ready to Launch'
   if (infOutreachStarted) return 'Influencer Outreach'
   if (allSentToClient || (allMotionDone && !allVideoApproved)) return 'Client Review'
@@ -247,105 +224,108 @@ function getCampaignStage(campaign) {
 }
 
 const useCampaignStore = create((set, get) => {
-  const initial = loadState()
+  // Load local first for instant display, then sync from Supabase
+  const localCampaigns = loadLocal() || SEED_CAMPAIGNS
+
+  // Async load from Supabase
+  loadFromSupabase().then(remote => {
+    if (remote && remote.length > 0) {
+      set({ campaigns: remote })
+      saveLocal(remote)
+    } else {
+      // First time: push seed data to Supabase
+      syncAllToSupabase(localCampaigns)
+    }
+  })
+
   return {
-    campaigns: initial.campaigns,
+    campaigns: localCampaigns,
 
     addCampaign: (companyName, numberOfVideos, launchDate, notes) => {
+      const newCampaign = createCampaign(companyName, numberOfVideos, launchDate, notes)
       set(state => {
-        const newState = {
-          campaigns: [...state.campaigns, createCampaign(companyName, numberOfVideos, launchDate, notes)]
-        }
-        saveState(newState)
-        return newState
+        const updated = [...state.campaigns, newCampaign]
+        saveLocal(updated)
+        saveCampaignToSupabase(newCampaign)
+        return { campaigns: updated }
       })
     },
 
     deleteCampaign: (campaignId) => {
       set(state => {
-        const newState = { campaigns: state.campaigns.filter(c => c.id !== campaignId) }
-        saveState(newState)
-        return newState
+        const updated = state.campaigns.filter(c => c.id !== campaignId)
+        saveLocal(updated)
+        deleteCampaignFromSupabase(campaignId)
+        return { campaigns: updated }
       })
     },
 
     updateCampaign: (campaignId, updates) => {
       set(state => {
-        const newState = {
-          campaigns: state.campaigns.map(c =>
-            c.id === campaignId ? { ...c, ...updates } : c
-          )
-        }
-        saveState(newState)
-        return newState
+        const updated = state.campaigns.map(c => c.id === campaignId ? { ...c, ...updates } : c)
+        saveLocal(updated)
+        const campaign = updated.find(c => c.id === campaignId)
+        if (campaign) saveCampaignToSupabase(campaign)
+        return { campaigns: updated }
       })
     },
 
     updateVideoStage: (campaignId, videoId, stageName, value) => {
       set(state => {
-        const newState = {
-          campaigns: state.campaigns.map(c => {
-            if (c.id !== campaignId) return c
-            return {
-              ...c,
-              videos: c.videos.map(v => {
-                if (v.id !== videoId) return v
-                return {
-                  ...v,
-                  stages: { ...v.stages, [stageName]: value }
-                }
-              })
-            }
-          })
-        }
-        saveState(newState)
-        return newState
+        const updated = state.campaigns.map(c => {
+          if (c.id !== campaignId) return c
+          return { ...c, videos: c.videos.map(v => v.id !== videoId ? v : { ...v, stages: { ...v.stages, [stageName]: value } }) }
+        })
+        saveLocal(updated)
+        const campaign = updated.find(c => c.id === campaignId)
+        if (campaign) saveCampaignToSupabase(campaign)
+        return { campaigns: updated }
       })
     },
 
     updateInfluencerStage: (campaignId, stageName, value) => {
       set(state => {
-        const newState = {
-          campaigns: state.campaigns.map(c => {
-            if (c.id !== campaignId) return c
-            return {
-              ...c,
-              influencer: { ...c.influencer, [stageName]: value }
-            }
-          })
-        }
-        saveState(newState)
-        return newState
+        const updated = state.campaigns.map(c => {
+          if (c.id !== campaignId) return c
+          return { ...c, influencer: { ...c.influencer, [stageName]: value } }
+        })
+        saveLocal(updated)
+        const campaign = updated.find(c => c.id === campaignId)
+        if (campaign) saveCampaignToSupabase(campaign)
+        return { campaigns: updated }
       })
     },
 
-    // Campaign influencer list management
     setCampaignInfluencers: (campaignId, influencers) => {
       set(state => {
-        const newState = {
-          campaigns: state.campaigns.map(c =>
-            c.id === campaignId ? { ...c, campaignInfluencers: influencers } : c
-          )
-        }
-        saveState(newState)
-        return newState
+        const updated = state.campaigns.map(c => c.id === campaignId ? { ...c, campaignInfluencers: influencers } : c)
+        saveLocal(updated)
+        const campaign = updated.find(c => c.id === campaignId)
+        if (campaign) saveCampaignToSupabase(campaign)
+        return { campaigns: updated }
       })
     },
 
     removeCampaignInfluencer: (campaignId, username) => {
       set(state => {
-        const newState = {
-          campaigns: state.campaigns.map(c => {
-            if (c.id !== campaignId) return c
-            return {
-              ...c,
-              campaignInfluencers: c.campaignInfluencers.filter(i => i.username !== username)
-            }
-          })
-        }
-        saveState(newState)
-        return newState
+        const updated = state.campaigns.map(c => {
+          if (c.id !== campaignId) return c
+          return { ...c, campaignInfluencers: c.campaignInfluencers.filter(i => i.username !== username) }
+        })
+        saveLocal(updated)
+        const campaign = updated.find(c => c.id === campaignId)
+        if (campaign) saveCampaignToSupabase(campaign)
+        return { campaigns: updated }
       })
+    },
+
+    // Refresh from Supabase
+    refreshFromSupabase: async () => {
+      const remote = await loadFromSupabase()
+      if (remote && remote.length > 0) {
+        set({ campaigns: remote })
+        saveLocal(remote)
+      }
     },
 
     getCampaign: (id) => get().campaigns.find(c => c.id === id),
