@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
-import TwitterEmbed from '../components/TwitterEmbed'
+import TweetCard from '../components/TwitterEmbed'
 
 const CALENDLY_URL = 'https://calendly.com/d/5cr-qm2-f2h/atomik-growth-intro-call'
 const PLAYBOOK_URL = 'https://www.atomikgrowth.com/blog/the-science-behind-every-viral-launch-video-on-x'
@@ -65,7 +65,17 @@ export default function Homepage() {
             viewport={{ once: true }}
             transition={{ delay: 0.2, duration: 0.6 }}
           >
-            <TwitterEmbed tweetUrl="https://x.com/subahwadhwani/status/2027526010300993796" />
+            <TweetCard
+              name="Subah Wadhwani"
+              handle="subahwadhwani"
+              avatar="https://pbs.twimg.com/profile_images/1886575556777357312/gFx7V3Ul_normal.jpg"
+              verified
+              tweetUrl="https://x.com/subahwadhwani/status/2027526010300993796"
+              text=""
+              videoThumb="https://pbs.twimg.com/amplify_video_thumb/2027524942582358016/img/placeholder.jpg"
+              date='The Science Behind Every Viral Launch Video on X'
+              stats={{ views: '92K', replies: '19', retweets: '36', likes: '364' }}
+            />
           </motion.div>
         </div>
       </section>
@@ -91,7 +101,17 @@ export default function Homepage() {
           transition={{ delay: 0.15, duration: 0.6 }}
           className="max-w-xl mx-auto"
         >
-          <TwitterEmbed tweetUrl="https://x.com/contextkingceo/status/2032098309029220456" />
+          <TweetCard
+            name="Nishkarsh"
+            handle="contextkingceo"
+            avatar="https://pbs.twimg.com/profile_images/1904944251517157376/gBD-1YKd_normal.jpg"
+            verified
+            tweetUrl="https://x.com/contextkingceo/status/2032098309029220456"
+            text={"We've raised $6.5M to kill vector databases.\nEvery system today retrieves context the same way: vector search that stores everything as flat embeddings and returns whatever \"feels\" closest.\nSimilar, sure. Relevant? Almost never."}
+            videoThumb="https://pbs.twimg.com/amplify_video_thumb/2032096164431216642/img/RT6n1T6AgDpzauqd.jpg"
+            date={'7:16 AM · Mar 12, 2026 · <span style="font-weight:600;color:var(--text-primary)">3.7M</span> Views'}
+            stats={{ views: '3.7M', replies: '614', retweets: '969', likes: '5.9K', bookmarks: '4.4K' }}
+          />
         </motion.div>
       </section>
 
@@ -116,7 +136,17 @@ export default function Homepage() {
           transition={{ delay: 0.15, duration: 0.6 }}
           className="max-w-xl mx-auto"
         >
-          <TwitterEmbed tweetUrl="https://x.com/thatssodhawal/status/2034276417530151200" />
+          <TweetCard
+            name="Dhawal Jain"
+            handle="thatssodhawal"
+            avatar="https://pbs.twimg.com/profile_images/1880198940543307776/placeholder_normal.jpg"
+            verified
+            tweetUrl="https://x.com/thatssodhawal/status/2034276417530151200"
+            text={"We've raised $2.1M to fix your focus.\nOur wearable headset @mavehealth improves attention & stress regulation in just 20 minutes a day for users at @Google, @ufc, @ycombinator.\nBacked by @BlumeVentures, alongside existing and new investors."}
+            videoThumb="https://pbs.twimg.com/amplify_video_thumb/2034274000734650368/img/placeholder.jpg"
+            date={'7:31 AM · Mar 18, 2026 · <span style="font-weight:600;color:var(--text-primary)">2.4M</span> Views'}
+            stats={{ views: '2.4M', replies: '404', retweets: '1K', likes: '3.1K', bookmarks: '1.7K' }}
+          />
         </motion.div>
       </section>
 

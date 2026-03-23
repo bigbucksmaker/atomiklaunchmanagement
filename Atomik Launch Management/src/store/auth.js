@@ -5,6 +5,7 @@ const ALLOWED_EMAILS = [
   'devansh.atomik@gmail.com',
   'akhilbunny04@gmail.com',
   'devanshrathod.atomik@gmail.com',
+  'abdul.hannaan.kirmani@gmail.com',
 ]
 
 function isEmailAllowed(email) {
