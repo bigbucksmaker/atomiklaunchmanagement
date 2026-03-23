@@ -46,12 +46,13 @@ function AnalyticsDashboard() {
     const rejected = leads.filter(l => l.status === '8. Rejected')
     const active = leads.filter(l => !['7. Closed', '8. Rejected'].includes(l.status))
 
-    const totalRevenue = closed.reduce((sum, l) => {
+    const leadsWithRevenue = leads.filter(l => l.closedAmount)
+    const totalRevenue = leadsWithRevenue.reduce((sum, l) => {
       const num = parseFloat((l.closedAmount || '').replace(/[$,]/g, ''))
       return sum + (isNaN(num) ? 0 : num)
     }, 0)
 
-    const avgDealSize = closed.length > 0 ? totalRevenue / closed.length : 0
+    const avgDealSize = leadsWithRevenue.length > 0 ? totalRevenue / leadsWithRevenue.length : 0
     const closeRate = totalLeads > 0 ? ((closed.length / (closed.length + rejected.length)) * 100).toFixed(0) : 0
 
     const byStatus = CRM_STATUSES.map(status => ({
