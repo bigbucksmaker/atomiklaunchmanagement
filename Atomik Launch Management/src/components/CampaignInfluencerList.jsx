@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { UserPlus, X, AlertTriangle, ExternalLink, DollarSign } from 'lucide-react'
 import { useCampaignStore } from '../store/campaigns'
 import { useInfluencerDb } from '../store/influencerDb'
-import { formatFollowers, formatPrice } from '../utils/csvParser'
+import { formatFollowers, formatPrice, extractUsername } from '../utils/csvParser'
 
 export default function CampaignInfluencerList({ campaign }) {
   const [input, setInput] = useState('')
@@ -14,7 +14,15 @@ export default function CampaignInfluencerList({ campaign }) {
 
   const handleAddInfluencers = () => {
     if (!input.trim()) return
-    const usernames = input.split(/[\n,]+/).map(s => s.trim().replace(/^@/, '')).filter(Boolean)
+    const usernames = input.split(/[\n,]+/).map(s => {
+      const trimmed = s.trim()
+      if (!trimmed) return null
+      // Handle X/Twitter URLs like https://x.com/username or https://x.com/username?s=21
+      if (trimmed.includes('x.com/') || trimmed.includes('twitter.com/')) {
+        return extractUsername(trimmed)
+      }
+      return trimmed.replace(/^@/, '')
+    }).filter(Boolean)
     const matched = matchUsernames(usernames)
     const existing = new Set(campaign.campaignInfluencers.map(i => i.username.toLowerCase()))
     const newOnes = matched.filter(m => !existing.has(m.username.toLowerCase()))
@@ -74,12 +82,12 @@ export default function CampaignInfluencerList({ campaign }) {
               style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
             >
               <label className="block text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
-                Paste usernames (one per line or comma-separated)
+                Paste usernames or X profile URLs (one per line or comma-separated)
               </label>
               <textarea
                 value={input}
                 onChange={e => setInput(e.target.value)}
-                placeholder="@username1, @username2&#10;username3"
+                placeholder="@username1, https://x.com/username2&#10;username3"
                 rows={4}
                 className="w-full px-3 py-2 rounded-lg border text-xs resize-none mb-3"
                 style={{

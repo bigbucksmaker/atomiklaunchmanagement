@@ -4,7 +4,6 @@ import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
 import Homepage from './pages/Homepage'
 import Dashboard from './pages/Dashboard'
-import KanbanOverview from './pages/KanbanOverview'
 import CampaignDetail from './pages/CampaignDetail'
 import AuthError from './pages/AuthError'
 
@@ -22,7 +21,6 @@ export default function App() {
 
             {/* Protected routes */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/dashboard/kanban" element={<ProtectedRoute><KanbanOverview /></ProtectedRoute>} />
             <Route path="/dashboard/campaign/:id" element={<ProtectedRoute><CampaignDetail /></ProtectedRoute>} />
           </Routes>
         </Layout>
