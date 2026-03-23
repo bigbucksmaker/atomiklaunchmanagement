@@ -55,17 +55,26 @@ export default function CampaignInfluencerList({ campaign }) {
             </span>
           )}
         </h3>
-        <button
-          onClick={() => setShowInput(!showInput)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider border-none cursor-pointer transition-all duration-200"
-          style={{
-            background: 'var(--gold-base)',
-            color: 'var(--bg-primary)',
-          }}
-        >
-          <UserPlus size={12} />
-          Add Influencers
-        </button>
+        <div className="flex items-center gap-2">
+          {influencers.length > 0 && (
+            <button
+              onClick={() => { if (confirm('Remove all influencers from this campaign?')) setCampaignInfluencers(campaign.id, []) }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider border-none cursor-pointer transition-all duration-200"
+              style={{ background: 'transparent', color: 'var(--danger)', border: '1px solid var(--border-color)' }}
+            >
+              <X size={12} />
+              Clear All
+            </button>
+          )}
+          <button
+            onClick={() => setShowInput(!showInput)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider border-none cursor-pointer transition-all duration-200"
+            style={{ background: 'var(--gold-base)', color: 'var(--bg-primary)' }}
+          >
+            <UserPlus size={12} />
+            Add Influencers
+          </button>
+        </div>
       </div>
 
       {/* Input area */}

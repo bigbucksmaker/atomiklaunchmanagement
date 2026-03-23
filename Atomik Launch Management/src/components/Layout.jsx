@@ -49,6 +49,11 @@ export default function Layout({ children }) {
   const dashboardNavItems = [
     { path: '/dashboard', label: 'Dashboard' },
     { path: '/dashboard/crm', label: 'CRM' },
+    { path: '/dashboard/timeline', label: 'Timeline' },
+    { path: '/dashboard/analytics', label: 'Analytics' },
+    { path: '/dashboard/workload', label: 'Workload' },
+    { path: '/dashboard/calculator', label: 'Calculator' },
+    { path: '/dashboard/activity', label: 'Activity' },
   ]
 
   return (

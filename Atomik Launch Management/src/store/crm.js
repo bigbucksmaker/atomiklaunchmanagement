@@ -37,6 +37,7 @@ function createLead(data = {}) {
     source: data.source || '',
     status: data.status || '1. Lead',
     website: data.website || '',
+    notes: data.notes || [],
     createdAt: data.createdAt || new Date().toISOString(),
   }
 }

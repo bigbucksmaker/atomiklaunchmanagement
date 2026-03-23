@@ -191,8 +191,10 @@ function LeadModal({ lead, onClose, onSave, onDelete }) {
     source: lead?.source || '',
     website: lead?.website || '',
     firefliesLinks: lead?.firefliesLinks || [],
+    notes: lead?.notes || [],
   })
   const [newLink, setNewLink] = useState('')
+  const [newNote, setNewNote] = useState('')
 
   const update = (key, val) => setForm(f => ({ ...f, [key]: val }))
 
@@ -273,6 +275,35 @@ function LeadModal({ lead, onClose, onSave, onDelete }) {
               <input type="url" placeholder="Paste Fireflies link..." value={newLink} onChange={e => setNewLink(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addFirefliesLink() } }}
                 className="flex-1 text-xs px-3 py-2 rounded-xl border" style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', outline: 'none' }} />
               <button onClick={addFirefliesLink} className="px-3 py-2 rounded-xl text-xs font-bold border-none cursor-pointer" style={{ background: 'var(--gold-base)', color: 'var(--bg-primary)' }}>Add</button>
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div className="col-span-full">
+            <label className="block text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>Notes</label>
+            <div className="flex flex-col gap-1.5 mb-2">
+              {form.notes.map((note, i) => (
+                <div key={i} className="flex items-start gap-2 px-3 py-2 rounded-lg text-xs" style={{ background: 'var(--bg-tertiary)' }}>
+                  <span className="flex-1" style={{ color: 'var(--text-secondary)' }}>{note.text}</span>
+                  <span className="text-[9px] shrink-0" style={{ color: 'var(--text-muted)' }}>{new Date(note.timestamp).toLocaleDateString()}</span>
+                  <button onClick={() => update('notes', form.notes.filter((_, idx) => idx !== i))} className="p-0.5 border-none cursor-pointer shrink-0" style={{ background: 'transparent', color: 'var(--text-muted)' }}>
+                    <X size={10} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Add a note..."
+                value={newNote}
+                onChange={e => setNewNote(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && newNote.trim()) { e.preventDefault(); update('notes', [...form.notes, { text: newNote.trim(), timestamp: new Date().toISOString(), author: JSON.parse(localStorage.getItem('atomik-auth') || '{}')?.name || 'Unknown' }]); setNewNote('') } }}
+                className="flex-1 text-xs px-3 py-2 rounded-xl border"
+                style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', outline: 'none' }}
+              />
+              <button onClick={() => { if (newNote.trim()) { update('notes', [...form.notes, { text: newNote.trim(), timestamp: new Date().toISOString(), author: JSON.parse(localStorage.getItem('atomik-auth') || '{}')?.name || 'Unknown' }]); setNewNote('') } }}
+                className="px-3 py-2 rounded-xl text-xs font-bold border-none cursor-pointer" style={{ background: 'var(--gold-base)', color: 'var(--bg-primary)' }}>Add</button>
             </div>
           </div>
         </div>

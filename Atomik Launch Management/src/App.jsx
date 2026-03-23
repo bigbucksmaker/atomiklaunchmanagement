@@ -6,6 +6,11 @@ import Homepage from './pages/Homepage'
 import Dashboard from './pages/Dashboard'
 import CampaignDetail from './pages/CampaignDetail'
 import CRM from './pages/CRM'
+import Timeline from './pages/Timeline'
+import Analytics from './pages/Analytics'
+import Workload from './pages/Workload'
+import ActivityLogPage from './pages/ActivityLog'
+import CostCalculator from './pages/CostCalculator'
 import AuthError from './pages/AuthError'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
@@ -22,7 +27,12 @@ function AppRoutes() {
           {/* Protected routes */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/dashboard/campaign/:id" element={<ProtectedRoute><CampaignDetail /></ProtectedRoute>} />
-            <Route path="/dashboard/crm" element={<ProtectedRoute><CRM /></ProtectedRoute>} />
+          <Route path="/dashboard/crm" element={<ProtectedRoute><CRM /></ProtectedRoute>} />
+          <Route path="/dashboard/timeline" element={<ProtectedRoute><Timeline /></ProtectedRoute>} />
+          <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+          <Route path="/dashboard/workload" element={<ProtectedRoute><Workload /></ProtectedRoute>} />
+          <Route path="/dashboard/activity" element={<ProtectedRoute><ActivityLogPage /></ProtectedRoute>} />
+          <Route path="/dashboard/calculator" element={<ProtectedRoute><CostCalculator /></ProtectedRoute>} />
         </Routes>
       </Layout>
     </BrowserRouter>
