@@ -1,6 +1,8 @@
+import { Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowRight, Eye, MessageCircle, Heart, Bookmark } from 'lucide-react'
 import TweetCard from '../components/TwitterEmbed'
+import { useAuthStore } from '../store/auth'
 
 const CALENDLY_URL = 'https://calendly.com/d/5cr-qm2-f2h/atomik-growth-intro-call'
 const PLAYBOOK_URL = 'https://www.atomikgrowth.com/blog/the-science-behind-every-viral-launch-video-on-x'
@@ -24,6 +26,9 @@ const PROCESS_PHASES = [
 ]
 
 export default function Homepage() {
+  const isAuthenticated = useAuthStore(s => s.isAuthenticated)
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
 
