@@ -189,7 +189,7 @@ export default function Layout({ children }) {
               </a>
 
               {/* Login */}
-              <div className="relative">
+              {import.meta.env.VITE_GOOGLE_CLIENT_ID && <div className="relative">
                 <GoogleLogin
                   onSuccess={handleLogin}
                   onError={() => navigate('/auth/error')}
@@ -199,7 +199,21 @@ export default function Layout({ children }) {
                   size="medium"
                   theme={theme === 'dark' ? 'filled_black' : 'outline'}
                 />
-              </div>
+              </div>}
+              {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+                <button
+                  onClick={() => alert('Google OAuth not configured. Set VITE_GOOGLE_CLIENT_ID environment variable.')}
+                  className="px-5 py-2 rounded-full text-xs font-bold uppercase tracking-[0.15em] border cursor-pointer transition-all duration-200"
+                  style={{
+                    background: 'transparent',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-color)',
+                    fontFamily: 'var(--font-body)',
+                  }}
+                >
+                  Login
+                </button>
+              )}
             </>
           )}
         </div>

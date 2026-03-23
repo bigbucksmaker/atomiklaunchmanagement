@@ -9,22 +9,31 @@ import AuthError from './pages/AuthError'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
 
-export default function App() {
+function AppRoutes() {
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <BrowserRouter>
-        <Layout>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Homepage />} />
-            <Route path="/auth/error" element={<AuthError />} />
+    <BrowserRouter>
+      <Layout>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<Homepage />} />
+          <Route path="/auth/error" element={<AuthError />} />
 
-            {/* Protected routes */}
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/dashboard/campaign/:id" element={<ProtectedRoute><CampaignDetail /></ProtectedRoute>} />
-          </Routes>
-        </Layout>
-      </BrowserRouter>
-    </GoogleOAuthProvider>
+          {/* Protected routes */}
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/dashboard/campaign/:id" element={<ProtectedRoute><CampaignDetail /></ProtectedRoute>} />
+        </Routes>
+      </Layout>
+    </BrowserRouter>
   )
+}
+
+export default function App() {
+  if (GOOGLE_CLIENT_ID) {
+    return (
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <AppRoutes />
+      </GoogleOAuthProvider>
+    )
+  }
+  return <AppRoutes />
 }
