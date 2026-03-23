@@ -83,10 +83,14 @@ export function extractUsername(url) {
 
 export function extractPrice(text) {
   if (!text) return 0
-  // Handle various formats: "$15", "Qt+Com $15", "15$", "1000 inr", "$1,000"
+  // Handle various formats: "$15", "Qt+Com $15", "15$", "1000 inr", "$1,000", "$1.5K", "1.3k$"
   const cleaned = text.replace(/,/g, '').replace(/inr/gi, '')
-  const match = cleaned.match(/\$?\s*(\d+(?:\.\d+)?)\s*\$?/)
-  if (match) return parseFloat(match[1])
+  const match = cleaned.match(/\$?\s*(\d+(?:\.\d+)?)\s*([kK])?\s*\$?/)
+  if (match) {
+    let val = parseFloat(match[1])
+    if (match[2] && match[2].toLowerCase() === 'k') val *= 1000
+    return val
+  }
   return 0
 }
 
