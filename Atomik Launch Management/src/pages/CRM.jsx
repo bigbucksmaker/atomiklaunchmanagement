@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, X, ExternalLink, Headphones, Search, Lock } from 'lucide-react'
+import { Plus, X, ExternalLink, Headphones, Search, Lock, Trash2 } from 'lucide-react'
 import { useCrmStore, CRM_STATUSES, CRM_TIERS, CRM_VENDORS, CRM_OWNERS } from '../store/crm'
 
 const CRM_PASSWORD = 'bussing'
@@ -229,8 +229,9 @@ function LeadModal({ lead, onClose, onSave, onDelete }) {
                 onClick={() => { if (confirm(`Delete "${lead.name}"?`)) { onDelete(lead.id); onClose() } }}
                 className="p-1.5 rounded-lg border-none cursor-pointer"
                 style={{ background: 'transparent', color: 'var(--danger)' }}
+                title="Delete lead"
               >
-                <X size={18} />
+                <Trash2 size={16} />
               </button>
             )}
             <button onClick={onClose} className="p-1.5 rounded-lg border-none cursor-pointer" style={{ background: 'transparent', color: 'var(--text-muted)' }}>
