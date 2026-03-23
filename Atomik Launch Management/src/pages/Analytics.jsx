@@ -119,23 +119,6 @@ export default function Analytics() {
           </div>
         </div>
 
-        {/* By Owner */}
-        <div className="rounded-2xl p-5" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-          <h3 className="text-lg font-semibold mb-4" style={{ fontFamily: 'var(--font-heading)' }}>By Owner</h3>
-          <div className="flex flex-col gap-3">
-            {Object.entries(stats.byOwner).sort((a, b) => b[1].revenue - a[1].revenue).map(([owner, data]) => (
-              <div key={owner} className="flex items-center justify-between py-2 px-3 rounded-lg" style={{ background: 'var(--bg-tertiary)' }}>
-                <div>
-                  <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{owner}</span>
-                  <span className="text-[10px] ml-2" style={{ color: 'var(--text-muted)' }}>{data.total} leads · {data.closed} closed</span>
-                </div>
-                <span className="text-sm font-bold" style={{ color: 'var(--status-approved)' }}>
-                  ${data.revenue.toLocaleString()}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* By Vendor */}
         <div className="rounded-2xl p-5" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
