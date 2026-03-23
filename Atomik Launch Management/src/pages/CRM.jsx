@@ -250,7 +250,7 @@ function LeadModal({ lead, onClose, onSave, onDelete }) {
           <Field label="Budget Inputted" value={form.budgetInputted} onChange={v => update('budgetInputted', v)} />
           <Field label="Closed $$" value={form.closedAmount} onChange={v => update('closedAmount', v)} />
           <Field label="Funding" value={form.funding} onChange={v => update('funding', v)} />
-          <Field label="Launch Date" value={form.launchDate} onChange={v => update('launchDate', v)} />
+          <Field label="Launch Date" value={form.launchDate} onChange={v => update('launchDate', v)} type="date" />
           <Field label="Launch Video Vendor" value={form.launchVideoVendor} onChange={v => update('launchVideoVendor', v)} type="select" options={['', ...CRM_VENDORS]} />
           <Field label="Owner" value={form.owner} onChange={v => update('owner', v)} type="select" options={['', ...CRM_OWNERS]} />
           <Field label="Prospect POC" value={form.prospectPOC} onChange={v => update('prospectPOC', v)} />
@@ -329,6 +329,9 @@ function Field({ label, value, onChange, type = 'text', options, full }) {
           style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', outline: 'none', fontFamily: 'var(--font-body)' }}>
           {options.map(o => <option key={o} value={o}>{o || '—'}</option>)}
         </select>
+      ) : type === 'date' ? (
+        <input type="date" value={value} onChange={e => onChange(e.target.value)} className="w-full text-sm px-3 py-2.5 rounded-xl border cursor-pointer"
+          style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', outline: 'none', fontFamily: 'var(--font-body)' }} />
       ) : (
         <input type="text" value={value} onChange={e => onChange(e.target.value)} className="w-full text-sm px-3 py-2.5 rounded-xl border"
           style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: 'var(--border-color)', outline: 'none', fontFamily: 'var(--font-body)' }} />

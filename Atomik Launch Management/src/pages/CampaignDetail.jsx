@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Trash2, StickyNote } from 'lucide-react'
 import VideoTrack from '../components/VideoTrack'
 import InfluencerTrack from '../components/InfluencerTrack'
 import ProgressRing from '../components/ProgressRing'
+import SharePortal from '../components/SharePortal'
 import { useCampaignStore, calculateCampaignProgress, getCampaignStage } from '../store/campaigns'
 
 export default function CampaignDetail() {
@@ -114,6 +115,7 @@ export default function CampaignDetail() {
         </div>
 
         <div className="flex items-center gap-4">
+          <SharePortal campaignId={campaign.id} />
           <ProgressRing progress={progress} size={64} strokeWidth={5} />
           <button
             onClick={() => {

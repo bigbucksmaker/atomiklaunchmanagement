@@ -11,6 +11,7 @@ import Analytics from './pages/Analytics'
 import Workload from './pages/Workload'
 import ActivityLogPage from './pages/ActivityLog'
 import CostCalculator from './pages/CostCalculator'
+import ClientPortal from './pages/ClientPortal'
 import AuthError from './pages/AuthError'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
@@ -23,6 +24,7 @@ function AppRoutes() {
           {/* Public routes */}
           <Route path="/" element={<Homepage />} />
           <Route path="/auth/error" element={<AuthError />} />
+          <Route path="/portal/:token" element={<ClientPortal />} />
 
           {/* Protected routes */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
