@@ -48,6 +48,7 @@ export default function Layout({ children }) {
 
   const dashboardNavItems = [
     { path: '/dashboard', label: 'Dashboard' },
+    { path: '/dashboard/crm', label: 'CRM' },
   ]
 
   return (

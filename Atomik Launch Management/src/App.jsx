@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Homepage from './pages/Homepage'
 import Dashboard from './pages/Dashboard'
 import CampaignDetail from './pages/CampaignDetail'
+import CRM from './pages/CRM'
 import AuthError from './pages/AuthError'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
@@ -21,6 +22,7 @@ function AppRoutes() {
           {/* Protected routes */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/dashboard/campaign/:id" element={<ProtectedRoute><CampaignDetail /></ProtectedRoute>} />
+            <Route path="/dashboard/crm" element={<ProtectedRoute><CRM /></ProtectedRoute>} />
         </Routes>
       </Layout>
     </BrowserRouter>
