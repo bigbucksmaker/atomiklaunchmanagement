@@ -73,6 +73,7 @@ function createCampaign(companyName, numberOfVideos = 1, launchDate = null, note
     videos: Array.from({ length: numberOfVideos }, (_, i) => createVideo(i)),
     influencer: createInfluencerTrack(),
     campaignInfluencers: [],
+    videoPreviews: [],
   }
 }
 

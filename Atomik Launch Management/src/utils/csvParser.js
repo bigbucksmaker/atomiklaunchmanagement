@@ -15,9 +15,16 @@ export function parseInfluencerCSV(csvText) {
 
     const firstName = (cols[1] || '').trim()
     const qtCommentRaw = (cols[2] || '').trim()
-    const followersRaw = (cols[8] || '').trim()
-    const commentPriceRaw = (cols[10] || '').trim()
-    const qtPriceRaw = (cols[11] || '').trim()
+    // Auto-detect column positions by checking header
+    // New CSV has Retweet Price at col 3, shifting followers to 9, comment to 11, qt to 12
+    const hasRepostCol = lines[0].includes('Retweet Price')
+    const followersIdx = hasRepostCol ? 9 : 8
+    const commentIdx = hasRepostCol ? 11 : 10
+    const qtIdx = hasRepostCol ? 12 : 11
+
+    const followersRaw = (cols[followersIdx] || '').trim()
+    const commentPriceRaw = (cols[commentIdx] || '').trim()
+    const qtPriceRaw = (cols[qtIdx] || '').trim()
 
     const qtCommentPrice = extractPrice(qtCommentRaw)
     const commentPrice = extractPrice(commentPriceRaw)
