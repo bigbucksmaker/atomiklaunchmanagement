@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import { supabase } from '../lib/supabase'
+import { registerCampaignStore, syncLaunchDateToCrm } from './syncDates'
 
 const TEAM_MEMBERS = ['Hannaan', 'Subah', 'Vihaan', 'Karan', 'Khushal', 'Khushi', 'Arthur']
 
@@ -260,21 +261,15 @@ const useCampaignStore = create((set, get) => {
       })
     },
 
-    updateCampaign: (campaignId, updates) => {
+    updateCampaign: (campaignId, updates, skipSync = false) => {
       set(state => {
         const updated = state.campaigns.map(c => c.id === campaignId ? { ...c, ...updates } : c)
         saveLocal(updated)
         const campaign = updated.find(c => c.id === campaignId)
         if (campaign) {
           saveCampaignToSupabase(campaign)
-          // Sync launch date to matching CRM lead
-          if ('launchDate' in updates) {
-            try {
-              const { useCrmStore } = require('./crm')
-              const leads = useCrmStore.getState().leads
-              const match = leads.find(l => l.name.toLowerCase() === campaign.companyName.toLowerCase())
-              if (match) useCrmStore.getState().updateLead(match.id, { launchDate: updates.launchDate })
-            } catch (e) {}
+          if (!skipSync && 'launchDate' in updates) {
+            syncLaunchDateToCrm(campaign.companyName, updates.launchDate)
           }
         }
         return { campaigns: updated }
@@ -342,6 +337,8 @@ const useCampaignStore = create((set, get) => {
     getCampaign: (id) => get().campaigns.find(c => c.id === id),
   }
 })
+
+registerCampaignStore(useCampaignStore)
 
 export {
   useCampaignStore,

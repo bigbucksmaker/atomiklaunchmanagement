@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import { supabase } from '../lib/supabase'
+import { registerCrmStore, syncLaunchDateToCampaign, syncAllLaunchDates } from './syncDates'
 
 const CRM_STATUSES = [
   '1. Lead',
@@ -118,44 +119,6 @@ function saveLocal(leads) {
   try { localStorage.setItem('atomik-crm', JSON.stringify({ leads })) } catch (e) {}
 }
 
-// Sync launch date from CRM to matching campaign
-function syncLaunchDateToCampaign(companyName, launchDate) {
-  try {
-    const { useCampaignStore } = require('./campaigns')
-    const campaigns = useCampaignStore.getState().campaigns
-    const match = campaigns.find(c => c.companyName.toLowerCase() === companyName.toLowerCase())
-    if (match) {
-      // Convert "March 26, 2026" style dates to "2026-03-26" if needed
-      let dateVal = launchDate
-      if (launchDate && !launchDate.match(/^\d{4}-/)) {
-        try { dateVal = new Date(launchDate).toISOString().split('T')[0] } catch (e) { dateVal = launchDate }
-      }
-      useCampaignStore.getState().updateCampaign(match.id, { launchDate: dateVal })
-    }
-  } catch (e) {}
-}
-
-// Initial sync: push CRM launch dates to campaigns on load
-function syncAllLaunchDates(leads) {
-  try {
-    const { useCampaignStore } = require('./campaigns')
-    setTimeout(() => {
-      const campaigns = useCampaignStore.getState().campaigns
-      leads.forEach(lead => {
-        if (!lead.launchDate || !lead.name) return
-        const match = campaigns.find(c => c.companyName.toLowerCase() === lead.name.toLowerCase())
-        if (match && !match.launchDate) {
-          let dateVal = lead.launchDate
-          if (dateVal && !dateVal.match(/^\d{4}-/)) {
-            try { dateVal = new Date(dateVal).toISOString().split('T')[0] } catch (e) {}
-          }
-          useCampaignStore.getState().updateCampaign(match.id, { launchDate: dateVal })
-        }
-      })
-    }, 1000)
-  } catch (e) {}
-}
-
 const useCrmStore = create((set, get) => {
   const localLeads = loadLocal() || SEED_LEADS
 
@@ -163,11 +126,11 @@ const useCrmStore = create((set, get) => {
     if (remote && remote.length > 0) {
       set({ leads: remote })
       saveLocal(remote)
-      syncAllLaunchDates(remote)
     } else {
       syncAllLeadsToSupabase(localLeads)
-      syncAllLaunchDates(localLeads)
     }
+    // Sync launch dates after a short delay to ensure campaign store is loaded
+    setTimeout(() => syncAllLaunchDates(), 1500)
   })
 
   return {
@@ -183,15 +146,14 @@ const useCrmStore = create((set, get) => {
       })
     },
 
-    updateLead: (id, updates) => {
+    updateLead: (id, updates, skipSync = false) => {
       set(state => {
         const updated = state.leads.map(l => l.id === id ? { ...l, ...updates } : l)
         saveLocal(updated)
         const lead = updated.find(l => l.id === id)
         if (lead) {
           saveLeadToSupabase(lead)
-          // Sync launch date to matching campaign
-          if ('launchDate' in updates && lead.name) {
+          if (!skipSync && 'launchDate' in updates && lead.name) {
             syncLaunchDateToCampaign(lead.name, updates.launchDate)
           }
         }
@@ -217,5 +179,7 @@ const useCrmStore = create((set, get) => {
     },
   }
 })
+
+registerCrmStore(useCrmStore)
 
 export { useCrmStore, CRM_STATUSES, CRM_TIERS, CRM_VENDORS, CRM_OWNERS, CRM_SOURCES }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, X, ExternalLink, Headphones, Search, Lock, Trash2 } from 'lucide-react'
 import { useCrmStore, CRM_STATUSES, CRM_TIERS, CRM_VENDORS, CRM_OWNERS } from '../store/crm'
@@ -195,6 +195,17 @@ function LeadModal({ lead, onClose, onSave, onDelete }) {
   })
   const [newLink, setNewLink] = useState('')
   const [newNote, setNewNote] = useState('')
+  const saveTimer = useRef(null)
+
+  // Auto-save on form changes (debounced 500ms)
+  useEffect(() => {
+    if (!lead) return // Don't auto-save for new leads
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => {
+      if (form.name.trim()) onSave(form)
+    }, 500)
+    return () => { if (saveTimer.current) clearTimeout(saveTimer.current) }
+  }, [form])
 
   const update = (key, val) => setForm(f => ({ ...f, [key]: val }))
 
